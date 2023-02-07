@@ -8,5 +8,5 @@ terraform {
 }
 
 provider "aws" {
-  region = "eu-west-1" # ireland
+  region = "eu-west-1" # Ireland
 }

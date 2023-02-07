@@ -9,10 +9,12 @@ use std::collections::HashMap;
 
 const DYNAMO_DB_TABLE_NAME: &'static str = "shortened-links";
 
+#[cfg(debug_assertions)]
 fn create_local_credentials() -> Credentials {
     Credentials::new("example", "example", None, None, "example")
 }
 
+#[cfg(debug_assertions)]
 async fn load_dynamo_client() -> dynamodb::Client {
     let region_provider = RegionProviderChain::default_provider().or_else("localhost");
     let config = aws_config::from_env()
@@ -22,6 +24,13 @@ async fn load_dynamo_client() -> dynamodb::Client {
         .load()
         .await;
 
+    return dynamodb::Client::new(&config);
+}
+
+#[cfg(not(debug_assertions))]
+async fn load_dynamo_client() -> dynamodb::Client {
+    let region_provider = RegionProviderChain::default_provider().or_else("eu-west-1");
+    let config = aws_config::from_env().region(region_provider).load().await;
     return dynamodb::Client::new(&config);
 }
 

@@ -5,6 +5,10 @@ edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
+[[bin]]
+name = "resolver"
+path = "src/main.rs"
+
 [dependencies]
 lambda_http = "0.7.1"
 lambda_runtime = "0.7.1"

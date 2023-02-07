@@ -57,3 +57,8 @@ terraform.rc
 
 .idea
 test/dynamo/*.db
+
+generator.zip
+resolver.zip
+
+infrastucture/.terraform.lock.hcl
