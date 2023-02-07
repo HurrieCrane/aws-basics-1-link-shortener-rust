@@ -3,9 +3,11 @@ use aws_config::meta::region::RegionProviderChain;
 use aws_sdk_dynamodb as dynamodb;
 use aws_sdk_dynamodb::model::AttributeValue;
 use aws_sdk_dynamodb::model::AttributeValue::S;
-use aws_sdk_dynamodb::Credentials;
 use lambda_http::http;
 use std::collections::HashMap;
+
+#[cfg(debug_assertions)]
+use aws_sdk_dynamodb::Credentials;
 
 const DYNAMO_DB_TABLE_NAME: &'static str = "shortened-links";
 

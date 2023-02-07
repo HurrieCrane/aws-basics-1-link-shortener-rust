@@ -1,6 +1,6 @@
 .PHONY: build
 
-build_release:
+build:
 	cargo lambda build --release --target aarch64-unknown-linux-gnu
 
 start:
