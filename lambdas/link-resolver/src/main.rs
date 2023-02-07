@@ -1,18 +1,20 @@
-mod generator;
+mod resolver;
 mod store;
 
+use crate::resolver::resolve_hash;
+use lambda_http::Body::Empty;
 use lambda_http::{
     http::StatusCode, service_fn, Body, Body::Text, Error, Request, RequestExt, Response,
 };
 use serde_json::json;
-
-use generator::generate;
 
 #[derive(Debug)]
 pub struct ServiceError {
     message: String,
     status: StatusCode,
 }
+
+const QUERY_PARAM_NAME: &'static str = "hash";
 
 #[tokio::main]
 async fn main() -> Result<(), Error> {
@@ -21,20 +23,20 @@ async fn main() -> Result<(), Error> {
 }
 
 async fn handler(event: Request) -> Result<Response<Body>, Error> {
-    let path_params = event.query_string_parameters();
-    let uri = match path_params.first("uri") {
-        Some(s) => s,
+    let path_params = event.path_parameters();
+    let hash = match path_params.first(QUERY_PARAM_NAME) {
+        Some(h) => h,
         None => {
             return Ok(Response::builder()
                 .status(StatusCode::BAD_REQUEST)
                 .body(Text(
-                    json!( { "errorMsg": "uri is a required parameter" } ).to_string(),
+                    json!( { "errorMsg": "you must provide a hash" } ).to_string(),
                 ))
-                .expect("unable to create response error for missing uri"))
+                .expect(""))
         }
     };
 
-    let tiny_url = match generate(uri).await {
+    let redirect_uri = match resolve_hash(hash).await {
         Ok(u) => u,
         Err(e) => {
             return Ok(Response::builder()
@@ -45,7 +47,8 @@ async fn handler(event: Request) -> Result<Response<Body>, Error> {
     };
 
     return Ok(Response::builder()
-        .status(StatusCode::OK)
-        .body(Text(json!({ "uri": tiny_url }).to_string()))
-        .expect("unable to return body"));
+        .status(StatusCode::MOVED_PERMANENTLY)
+        .header("Location", redirect_uri)
+        .body(Empty)
+        .expect(""));
 }

@@ -1,6 +1,4 @@
 use crate::ServiceError;
-use aws_config::default_provider::timeout_config::Builder;
-use aws_config::meta::credentials::CredentialsProviderChain;
 use aws_config::meta::region::RegionProviderChain;
 use aws_sdk_dynamodb as dynamodb;
 use aws_sdk_dynamodb::model::AttributeValue;
@@ -8,7 +6,6 @@ use aws_sdk_dynamodb::model::AttributeValue::S;
 use aws_sdk_dynamodb::Credentials;
 use lambda_http::http;
 use std::collections::HashMap;
-use std::future::Future;
 
 const DYNAMO_DB_TABLE_NAME: &'static str = "shortened-links";
 
@@ -37,11 +34,11 @@ pub async fn store_uri(hash: String, uri: &str) -> Result<(), ServiceError> {
 
     let put_item_request = client
         .put_item()
-        .set_item(Some(item))
+        .set_item(Option::from(item))
         .set_table_name(Some(DYNAMO_DB_TABLE_NAME.to_string()));
 
     return match put_item_request.send().await {
-        Ok(i) => Ok(()),
+        Ok(_i) => Ok(()),
         Err(e) => Err(ServiceError {
             message: e.to_string(),
             status: http::StatusCode::INTERNAL_SERVER_ERROR,

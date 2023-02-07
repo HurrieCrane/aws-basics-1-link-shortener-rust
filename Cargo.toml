@@ -1,4 +1,5 @@
 [workspace]
 members = [
     "lambdas/link-generator",
+    "lambdas/link-resolver",
 ]
